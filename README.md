@@ -11,9 +11,13 @@
 
 ---
 
+> **TL;DR:** Caso de negocio end-to-end sobre el marketplace Olist (SQL → Power Query → Power BI). Identifica el cuello de botella logístico real (74% del tiempo se concentra en transporte, no en aprobación ni despacho), la brecha de 1.72 puntos en satisfacción entre entregas a tiempo y tardías, y un riesgo de concentración comercial por estado.
+
 ## Objetivo
 
 El objetivo de este proyecto fue analizar el desempeño del marketplace brasileño Olist mediante un proceso completo de Business Intelligence, para identificar oportunidades comerciales, logísticas y operativas — desde la exploración cruda de los datos hasta un dashboard ejecutivo de 4 páginas, documentando el razonamiento detrás de cada decisión.
+
+*Nota: este proyecto usa el [Olist Brazilian E-Commerce Public Dataset](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce) de Kaggle como caso de estudio. El análisis, modelado de datos, medidas DAX y storytelling del dashboard son trabajo propio.*
 
 ---
 
@@ -158,6 +162,8 @@ Librería completa en [`dax/medidas_dax.md`](dax/medidas_dax.md). Las 3 medidas 
 
 **Página 2 — Análisis de Ventas.** Revenue por categoría y estado, relación volumen vs. ticket promedio, estacionalidad (pico en noviembre 2017 por Black Friday).
 
+> *Decisión de diseño descartada: originalmente se planeó un scatter de 3 variables (pedidos, ticket promedio, revenue como tamaño de burbuja). Se reemplazó por 2 bar charts horizontales simples (volumen y ticket) tras cuestionar si un gerente no técnico entendería un scatter de 3 variables sin explicación adicional — priorizar claridad sobre densidad de información.*
+
 **Página 3 — Cumplimiento y Calidad.** Tasa de entregas tardías, distribución de tiempo por etapa logística, correlación entre puntualidad y satisfacción del cliente.
 
 **Página 4 — Vendor Scorecard.** Distribución de vendedores por estado, índice de eficiencia comercial con umbral de muestra mínima (20 vendedores) para evitar conclusiones sobre casos atípicos.
@@ -168,6 +174,7 @@ Librería completa en [`dax/medidas_dax.md`](dax/medidas_dax.md). Las 3 medidas 
 
 ```
 ├── README.md
+├── Olist_Dashboard.pbix          # Archivo real de Power BI
 ├── sql/                          # 4 queries, una por nivel de análisis
 ├── dax/medidas_dax.md            # Librería completa de medidas DAX
 ├── docs/
@@ -178,7 +185,7 @@ Librería completa en [`dax/medidas_dax.md`](dax/medidas_dax.md). Las 3 medidas 
 └── screenshots/                  # Capturas de las 4 páginas del dashboard
 ```
 
-> El archivo `.pbix` no se incluye en esta versión del repositorio — todo el razonamiento técnico (SQL, DAX, modelo) está documentado en detalle en las carpetas de arriba.
+> El archivo `Olist_Dashboard.pbix` está incluido en la raíz del repositorio. Todo el razonamiento técnico (SQL, DAX, modelo de datos) está además documentado en detalle en las carpetas de arriba, para quien prefiera revisarlo sin abrir Power BI.
 
 ---
 
@@ -190,5 +197,11 @@ El aprendizaje más importante no fue una herramienta específica, sino un hábi
 
 ---
 
-**Autor:** Juan Demián Bañuelos Minor
+## Contacto
+
+**Juan Demián Bañuelos Minor**
+Analista de Datos con background en compras, finanzas y operaciones.
+
+[LinkedIn](https://www.linkedin.com/in/datademianminor) · demianminor@gmail.com
+
 **Dataset:** [Olist Brazilian E-Commerce Public Dataset](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce) (Kaggle)
