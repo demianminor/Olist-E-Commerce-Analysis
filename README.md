@@ -15,7 +15,7 @@
 
 ## Objetivo
 
-El objetivo de este proyecto fue analizar el desempeño del marketplace brasileño Olist mediante un proceso completo de Business Intelligence, para identificar oportunidades comerciales, logísticas y operativas — desde la exploración cruda de los datos hasta un dashboard ejecutivo de 4 páginas, documentando el razonamiento detrás de cada decisión.
+El objetivo de este proyecto fue analizar el desempeño del marketplace brasileño Olist mediante un proceso completo de Business Intelligence, para identificar oportunidades comerciales, logísticas y operativas: desde la exploración cruda de los datos hasta un dashboard ejecutivo de 4 páginas, documentando el razonamiento detrás de cada decisión.
 
 *Nota: este proyecto usa el [Olist Brazilian E-Commerce Public Dataset](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce) de Kaggle como caso de estudio. El análisis, modelado de datos, medidas DAX y storytelling del dashboard son trabajo propio.*
 
@@ -41,11 +41,11 @@ El dashboard responde 4 preguntas de negocio, en secuencia progresiva.
 
 ## Key Business Insights
 
-- **Health & Beauty** lidera el revenue; **Watches & Gifts** tiene el ticket promedio más alto — dos estrategias de venta opuestas (volumen vs. valor) generando revenue comparable.
-- El transporte (etapa Transportista → Entrega) concentra **74.3%** del tiempo logístico total — el cuello de botella real del proceso, no la aprobación de pago ni el despacho del vendedor.
-- **São Paulo** genera el 64.4% del revenue con el 59.7% de los vendedores — ligeramente por encima de lo proporcional.
-- La eficiencia comercial **no depende únicamente del número de vendedores**: Goiás no vende barato (ticket por encima del promedio nacional), su problema es bajo volumen de actividad por vendedor — no valor del producto.
-- Los pedidos tardíos caen a 2.57 estrellas de satisfacción vs. 4.29 en los que llegan a tiempo — la correlación más fuerte encontrada en todo el proyecto.
+- **Health & Beauty** lidera el revenue y **Watches & Gifts** tiene el ticket promedio más alto: son dos estrategias de venta opuestas (volumen vs. valor) que terminan generando un revenue comparable.
+- El transporte (etapa Transportista → Entrega) concentra **74.3%** del tiempo logístico total. Es el cuello de botella real del proceso, no la aprobación de pago ni el despacho del vendedor.
+- **São Paulo** genera el 64.4% del revenue con el 59.7% de los vendedores, ligeramente por encima de lo que le tocaría de forma proporcional.
+- La eficiencia comercial **no depende únicamente del número de vendedores**: Goiás no vende barato (su ticket está por encima del promedio nacional); el problema real es bajo volumen de actividad por vendedor, no el valor del producto.
+- Los pedidos tardíos caen a 2.57 estrellas de satisfacción vs. 4.29 en los que llegan a tiempo. Es la correlación más fuerte que encontré en todo el proyecto.
 
 ---
 
@@ -73,7 +73,7 @@ Dataset (Kaggle, 9 tablas)
     Business Insights
 ```
 
-Principio constante: **SQL-first** — toda medida DAX se valida contra una query SQL equivalente antes de darse por final. Esa disciplina fue la que permitió detectar los dos errores técnicos documentados más abajo.
+Principio constante: **SQL-first**. Toda medida DAX se valida contra una query SQL equivalente antes de darse por final. Esa disciplina fue la que permitió detectar los dos errores técnicos documentados más abajo.
 
 ---
 
@@ -97,8 +97,8 @@ Auditoría ejecutada con las tres herramientas nativas de Power Query (Column Qu
 |---|---|
 | 610 productos sin categoría (1.85%) | Reemplazados con "unclassified" |
 | 551 reseñas duplicadas por order_id | Deduplicado por fecha más reciente (CTE / RELATEDTABLE+VAR) |
-| Nulos en fechas de entrega intermedias | Válidos por diseño — pedidos cancelados o en tránsito, no un error |
-| Filtro de Power Query dejado activo | Redujo `orders` de 99,441 a 625 filas silenciosamente — detectado por validación cruzada contra SQL |
+| Nulos en fechas de entrega intermedias | Válidos por diseño: pedidos cancelados o en tránsito, no un error |
+| Filtro de Power Query dejado activo | Redujo `orders` de 99,441 a 625 filas silenciosamente; detectado por validación cruzada contra SQL |
 
 Detalle completo en [`docs/calidad_datos.md`](docs/calidad_datos.md).
 
@@ -106,13 +106,13 @@ Detalle completo en [`docs/calidad_datos.md`](docs/calidad_datos.md).
 
 ## Data Dictionary
 
-9 tablas relacionales — pedidos, items, pagos, reseñas, clientes, productos, vendedores, geolocalización y traducción de categorías. Documentación completa en [`docs/diccionario_datos.md`](docs/diccionario_datos.md).
+9 tablas relacionales: pedidos, items, pagos, reseñas, clientes, productos, vendedores, geolocalización y traducción de categorías. Documentación completa en [`docs/diccionario_datos.md`](docs/diccionario_datos.md).
 
 ---
 
 ## Data Model
 
-Star schema con `order_items` como tabla de hechos principal, tabla `Calendario` dedicada (`CALENDARAUTO()`) para inteligencia de tiempo.
+Star schema con `order_items` como tabla de hechos principal, y una tabla `Calendario` dedicada (`CALENDARAUTO()`) para inteligencia de tiempo.
 
 ![Modelo de datos en Power BI](screenshots/05_model_diagram.png)
 
@@ -122,16 +122,16 @@ Detalle completo, incluyendo una corrección de documentación sobre la relació
 
 ## SQL
 
-Cada query resuelve una pregunta de negocio específica, organizadas por nivel de análisis en [`/sql`](sql/).
+Cada query resuelve una pregunta de negocio específica. Están organizadas por nivel de análisis en [`/sql`](sql/).
 
 | Query | Qué resuelve |
 |---|---|
 | `01_nivel1_contexto_negocio.sql` | Tamaño del negocio: volumen, revenue y clientes únicos |
 | `02_nivel2_revenue_analisis.sql` | Qué categorías generan más revenue y qué métodos de pago dominan |
-| `03_nivel3_calidad_entregas.sql` | Tasa de entregas tardías y tiempo promedio por etapa logística — identifica el cuello de botella |
+| `03_nivel3_calidad_entregas.sql` | Tasa de entregas tardías y tiempo promedio por etapa logística; identifica el cuello de botella |
 | `04_vendor_scorecard.sql` | Índice de eficiencia por estado (revenue vs. cantidad de vendedores), con filtro de muestra mínima |
 
-Ejemplo de validación: la query de tiempo por etapa se usó para confirmar, dato por dato, la medida DAX `Tiempo Entrega` antes de darla por buena en el dashboard — ese cruce fue lo que reveló el bug de BLANK vs NULL documentado en Hallazgos Técnicos.
+Ejemplo de validación: la query de tiempo por etapa se usó para confirmar, dato por dato, la medida DAX `Tiempo Entrega` antes de darla por buena en el dashboard. Ese cruce fue justo lo que reveló el bug de BLANK vs NULL documentado en Hallazgos Técnicos.
 
 ---
 
@@ -139,7 +139,7 @@ Ejemplo de validación: la query de tiempo por etapa se usó para confirmar, dat
 
 - Auditoría de calidad de datos sobre las 9 tablas completas (no solo la muestra de 1,000 filas por default).
 - Normalización de tipos de fecha para alinear correctamente con la tabla Calendario.
-- Columna calculada `Estado Nombre Completo` — traducción de códigos de 2 letras a nombres completos, requerida porque Power BI Filled Map no reconoce los códigos de estado brasileños (los confunde con estados de EE. UU.).
+- Columna calculada `Estado Nombre Completo`, para traducir códigos de 2 letras a nombres completos: Power BI Filled Map no reconoce los códigos de estado brasileños y los confunde con estados de EE. UU.
 - Reemplazo de categorías nulas por "unclassified" para que los visuales rendericen sin huecos.
 
 ---
@@ -148,11 +148,11 @@ Ejemplo de validación: la query de tiempo por etapa se usó para confirmar, dat
 
 Librería completa en [`dax/medidas_dax.md`](dax/medidas_dax.md). Las 3 medidas más relevantes:
 
-**`Revenue Total con flete`** — métrica base de tamaño del negocio. Existe separada de `Revenue Total` (solo producto) porque distintas preguntas de negocio requieren distinto denominador: análisis por categoría/vendedor usa solo producto; el revenue "oficial" de la empresa incluye flete.
+**`Revenue Total con flete`**: métrica base de tamaño del negocio. Existe separada de `Revenue Total` (solo producto) porque distintas preguntas de negocio requieren distinto denominador. El análisis por categoría/vendedor usa solo producto; el revenue "oficial" de la empresa incluye flete.
 
-**`Tiempo Entrega`** — días promedio entre que el transportista recibe el pedido y lo entrega al cliente. Es la medida que reveló el cuello de botella del proyecto (74.3% del ciclo total), y la que expuso el bug de BLANK vs NULL en DAX — requiere excluir explícitamente valores en blanco con `ISBLANK()`, algo que SQL hace automáticamente pero DAX no.
+**`Tiempo Entrega`**: días promedio entre que el transportista recibe el pedido y lo entrega al cliente. Es la medida que reveló el cuello de botella del proyecto (74.3% del ciclo total) y también la que expuso el bug de BLANK vs NULL en DAX. Requiere excluir explícitamente valores en blanco con `ISBLANK()`, algo que SQL hace automáticamente pero DAX no.
 
-**`Indice Eficiencia`** — `% revenue del estado ÷ % vendedores del estado`. Existe para responder si el revenue de un estado es proporcional a su cantidad de vendedores, o si hay estados que "rinden más" o "menos" de lo esperado — el benchmark no viene de una fuente externa, se construye a partir de la distribución proporcional esperada.
+**`Indice Eficiencia`**: `% revenue del estado ÷ % vendedores del estado`. Existe para responder si el revenue de un estado es proporcional a su cantidad de vendedores, o si hay estados que "rinden más" o "menos" de lo esperado. El benchmark no viene de una fuente externa; se construye a partir de la distribución proporcional esperada.
 
 ---
 
@@ -162,7 +162,7 @@ Librería completa en [`dax/medidas_dax.md`](dax/medidas_dax.md). Las 3 medidas 
 
 **Página 2 — Análisis de Ventas.** Revenue por categoría y estado, relación volumen vs. ticket promedio, estacionalidad (pico en noviembre 2017 por Black Friday).
 
-> *Decisión de diseño descartada: originalmente se planeó un scatter de 3 variables (pedidos, ticket promedio, revenue como tamaño de burbuja). Se reemplazó por 2 bar charts horizontales simples (volumen y ticket) tras cuestionar si un gerente no técnico entendería un scatter de 3 variables sin explicación adicional — priorizar claridad sobre densidad de información.*
+> *Decisión de diseño descartada: originalmente se planeó un scatter de 3 variables (pedidos, ticket promedio, revenue como tamaño de burbuja). Se reemplazó por 2 bar charts horizontales simples (volumen y ticket) tras cuestionar si un gerente no técnico entendería un scatter de 3 variables sin explicación adicional. La prioridad fue la claridad, no la densidad de información.*
 
 **Página 3 — Cumplimiento y Calidad.** Tasa de entregas tardías, distribución de tiempo por etapa logística, correlación entre puntualidad y satisfacción del cliente.
 
@@ -193,7 +193,7 @@ Librería completa en [`dax/medidas_dax.md`](dax/medidas_dax.md). Las 3 medidas 
 
 Durante este proyecto reforcé modelado dimensional, documentación técnica, storytelling de datos y diseño ejecutivo de dashboards, además de profundizar en SQL y DAX aplicados a un caso de negocio real.
 
-El aprendizaje más importante no fue una herramienta específica, sino un hábito: **validar siempre contra una fuente independiente antes de confiar en un resultado.** Los dos hallazgos técnicos más relevantes del proyecto — un filtro de Power Query olvidado y una diferencia de comportamiento entre SQL y DAX frente a valores en blanco — nunca se habrían detectado solo mirando el dashboard. Se hicieron visibles porque cada número tenía un número de SQL equivalente contra el cual compararse.
+El aprendizaje más importante no fue una herramienta específica, sino un hábito: **validar siempre contra una fuente independiente antes de confiar en un resultado.** Los dos hallazgos técnicos más relevantes del proyecto (un filtro de Power Query olvidado y una diferencia de comportamiento entre SQL y DAX frente a valores en blanco) nunca se habrían detectado solo mirando el dashboard. Se hicieron visibles porque cada número tenía un número de SQL equivalente contra el cual compararse.
 
 ---
 
